@@ -26,5 +26,8 @@ jobs:
           HOST: ${{ secrets.VM_HOST }}
           USER_: ${{ secrets.VM_USER }}
         run: |
+          if [ -z "$HOST" ] || [ -z "$USER_" ] || [ -z "$KEY" ]; then
+            echo "Deploy secrets not set - skipping deploy"; exit 0
+          fi
           install -m 600 /dev/null key && echo "$KEY" > key
           ssh -i key -o StrictHostKeyChecking=accept-new "$USER_@$HOST" "cd ~/pdm-mlops && ./deploy/deploy.sh"
