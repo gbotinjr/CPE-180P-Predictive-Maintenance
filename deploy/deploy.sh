@@ -10,6 +10,10 @@ for i in $(seq 1 15); do
   sleep 2
 done
 echo "health check failed - rolling back"
-docker tag ml-api:previous ml-api:latest
-sudo systemctl restart ml-api
+if docker image inspect ml-api:previous >/dev/null 2>&1; then
+  docker tag ml-api:previous ml-api:latest
+  sudo systemctl restart ml-api
+else
+  echo "no previous image to roll back to"
+fi
 exit 1

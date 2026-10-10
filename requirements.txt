@@ -3,3 +3,4 @@ uvicorn>=0.29
 onnxruntime>=1.17
 numpy>=1.26
 pydantic>=2.6
+pandas>=2.1
