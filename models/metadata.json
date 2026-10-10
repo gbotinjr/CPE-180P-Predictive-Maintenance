@@ -1,0 +1,35 @@
+{
+  "model_version": "1.0.0",
+  "model_type": "gradient_boosting",
+  "training_date": "2026-10-10",
+  "metrics": {
+    "accuracy": 0.959,
+    "failure_recall": 0.9117647058823529,
+    "roc_auc": 0.9741581415174765
+  },
+  "parity_max_abs_diff": 9.265035055480708e-08,
+  "synthetic_data": false,
+  "sha256": "8a8ae84eac25ca0398fa0ded6bf9ba51e86385f824fcc9b1a7ba5193274aea65",
+  "ranges": {
+    "air_temp_k": [
+      294.38,
+      305.42
+    ],
+    "process_temp_k": [
+      304.89,
+      314.61
+    ],
+    "rotational_speed_rpm": [
+      996.2,
+      3057.8
+    ],
+    "torque_nm": [
+      0.0,
+      83.88
+    ],
+    "tool_wear_min": [
+      0.0,
+      278.3
+    ]
+  }
+}

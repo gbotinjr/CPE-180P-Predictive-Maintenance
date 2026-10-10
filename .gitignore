@@ -1,0 +1,10 @@
+.env
+*.pem
+id_rsa*
+*.key
+logs/*
+!logs/.gitkeep
+__pycache__/
+.venv/
+.pytest_cache/
+.cpe180p/

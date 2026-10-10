@@ -1,0 +1,15 @@
+[Unit]
+Description=Predictive maintenance API (Docker)
+After=docker.service network-online.target
+Requires=docker.service
+
+[Service]
+Restart=always
+RestartSec=5
+ExecStartPre=-/usr/bin/docker rm -f ml-api
+ExecStart=/usr/bin/docker run --rm --name ml-api -p 8000:8000 --memory 1g \
+  --env-file /etc/ml-api.env -v /var/log/ml-api:/app/logs ml-api:latest
+ExecStop=/usr/bin/docker stop ml-api
+
+[Install]
+WantedBy=multi-user.target

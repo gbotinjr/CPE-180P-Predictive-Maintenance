@@ -1,0 +1,30 @@
+name: ci-cd
+on: { push: { branches: [main] }, pull_request: {} }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements-train.txt
+      - run: ruff check .
+      - run: pytest -q
+      - name: Evaluation gate (accuracy>=0.90, recall>=0.70)
+        run: python -m scripts.eval_gate
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        env:
+          KEY: ${{ secrets.VM_SSH_KEY }}
+          HOST: ${{ secrets.VM_HOST }}
+          USER_: ${{ secrets.VM_USER }}
+        run: |
+          install -m 600 /dev/null key && echo "$KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new "$USER_@$HOST" "cd ~/pdm-mlops && ./deploy/deploy.sh"
