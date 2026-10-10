@@ -1,6 +1,12 @@
 """Test client. python client.py --url http://<VM_IP>:8000 --n 200 [--shift]
 Replays real rows from the AI4I CSV so normal traffic matches the training distribution."""
-import argparse, collections, csv, random, statistics as st, time
+import argparse
+import collections
+import csv
+import random
+import statistics as st
+import time
+
 import numpy as np
 import requests
 
