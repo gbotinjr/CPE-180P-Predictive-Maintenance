@@ -4,6 +4,94 @@ CPE180P Cloud AI & MLOps, Group Mini Project (Mapúa University)
 
 A scikit-learn classifier trained on the UCI AI4I 2020 Predictive Maintenance dataset predicts machine failure from five sensor readings plus the product type. The model is exported to ONNX, served by a FastAPI app inside Docker, supervised by systemd, and monitored with JSON logs and a PSI drift check.
 
+## Quick start: try it on your own device
+
+You do not need access to our server or anyone else's computer. Everything runs locally from this repository, which already includes the trained model and the dataset. The deployed service runs on the team's own machine and is not reachable from outside, so each person tests their own copy.
+
+**0. Get access (once).** The repository is private. The owner adds you under **Settings, Collaborators**. Accept the invitation from your email or GitHub notifications, and sign in with the same GitHub account that was invited. A 404 on the repository page means the invite has not been accepted or you are signed in to a different account.
+
+**1. Download the project.** On the repository page, click **Code, Download ZIP**, then unzip it. The folder is usually named `CPE-180P-Predictive-Maintenance-main`. Or clone it: `git clone git@github.com:gbotinjr/CPE-180P-Predictive-Maintenance.git`.
+
+**2. Install Python 3.11 or newer.** Check with `python --version` (or `python3 --version`). On Windows, tick **Add Python to PATH** during installation.
+
+**3. Create an environment and install dependencies.** Open a terminal in the project folder.
+
+Windows (PowerShell):
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements-train.txt
+```
+
+If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope Process Bypass` and try again.
+
+WSL, Linux or macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-train.txt
+```
+
+**4. Run the tests.**
+
+```bash
+pytest -q
+```
+
+Expected: `8 passed`.
+
+**5. Start the API.** Leave this terminal running.
+
+```bash
+uvicorn app.main:app --port 8000
+```
+
+Wait for `Application startup complete`.
+
+**6. Send requests.** Open a second terminal in the same folder, activate the environment again (step 3), then:
+
+```bash
+python client.py --url http://localhost:8000 --n 200
+curl http://localhost:8000/healthz
+curl http://localhost:8000/v1/model-info
+```
+
+Expected: `ok=200 errors=0` with the server p95 latency well under 100 ms. On Windows PowerShell use `curl.exe` instead of `curl`.
+
+**7. See the drift alert.** Send normal traffic, check the monitor, then send shifted traffic and check again. Wait about a minute between the two client runs because of the rate limit.
+
+```bash
+python client.py --url http://localhost:8000 --n 250
+python -m scripts.psi_monitor            # expect every feature "ok"
+python client.py --url http://localhost:8000 --shift --n 250
+python -m scripts.psi_monitor            # expect DRIFT on torque_nm, tool_wear_min, power_w and an ALERT line
+```
+
+To restart the comparison from a clean log, stop the server, delete `logs/requests.jsonl`, and start the server again.
+
+**8. Try a bad request.** Torque cannot be negative, so the API should reject this with HTTP 422. A missing field or a `type` other than L, M or H is also rejected.
+
+```bash
+curl -X POST http://localhost:8000/v1/predict -H "Content-Type: application/json" \
+  -d '{"type":"M","air_temp_k":300,"process_temp_k":310,"rotational_speed_rpm":1500,"torque_nm":-5,"tool_wear_min":100}'
+```
+
+On Windows PowerShell, use `curl.exe` and escape the quotes: `-d "{\"type\":\"M\",...}"`.
+
+**9. Optional: retrain the model.** `python train.py` prints metrics for logistic regression, random forest and gradient boosting, selects a model, exports it to ONNX, and fails if the ONNX output does not match scikit-learn. If you change anything in `models/`, do it on a branch, not on `main`.
+
+**10. Optional: run it in Docker.** `docker build -t ml-api .` then `docker run --rm -p 8000:8000 ml-api`, and repeat step 6.
+
+| Quick start problem | Fix |
+|---|---|
+| `python` not found | Install Python and tick Add to PATH, or use `python3` |
+| `Address already in use` on port 8000 | Stop the other server, or use `--port 8001` and the same port in `client.py --url` |
+| `ModuleNotFoundError: No module named 'app'` | Run commands from the project root; use `python -m scripts.psi_monitor` |
+| HTTP 429 from the API | The rate limit is 300 requests per minute per IP; wait a minute |
+| `psi_monitor` finds no log | Send some requests first; the log is created when the API starts |
+
 ## 1. Architecture
 
 ```
@@ -167,6 +255,5 @@ The same scripts apply: create an Ubuntu VM, install your public key, attach a p
 | *(fill in)* | | Lead MLOps Engineer |
 | *(fill in)* | | Data & Training Lead |
 | *(fill in)* | | Backend API Developer |
-
 
 Dataset reference: S. Matzka, "Explainable Artificial Intelligence for Predictive Maintenance Applications," 3rd International Conference on Artificial Intelligence for Industries (AI4I), 2020.
