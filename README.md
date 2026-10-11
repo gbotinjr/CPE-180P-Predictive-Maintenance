@@ -1,6 +1,6 @@
 # Cloud-Deployed Predictive Maintenance Classifier
 
-CPE180P Cloud AI & MLOps, Group Mini Project (Mapúa University)
+CPE180P Cloud AI & MLOps, Group Project (Mapúa University)
 
 A scikit-learn classifier trained on the UCI AI4I 2020 Predictive Maintenance dataset predicts machine failure from five sensor readings plus the product type. The model is exported to ONNX, served by a FastAPI app inside Docker, supervised by systemd, and monitored with JSON logs and a PSI drift check.
 
