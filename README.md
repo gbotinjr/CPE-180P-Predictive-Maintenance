@@ -252,8 +252,8 @@ The same scripts apply: create an Ubuntu VM, install your public key, attach a p
 
 | Name | Student ID | Role |
 |---|---|---|
-| *(fill in)* | | Lead MLOps Engineer |
-| *(fill in)* | | Data & Training Lead |
-| *(fill in)* | | Backend API Developer |
+| Gary Botin Jr | | Lead MLOps Engineer |
+| Carl Erick Esmeria | | Data & Training Lead |
+| Eruel Joseph Dizon | | Backend API Developer |
 
 Dataset reference: S. Matzka, "Explainable Artificial Intelligence for Predictive Maintenance Applications," 3rd International Conference on Artificial Intelligence for Industries (AI4I), 2020.
